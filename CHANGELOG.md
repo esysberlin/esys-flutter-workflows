@@ -1,3 +1,8 @@
+# 1.0.4
+
+- readme updated
+- workflow updated
+
 # 1.0.3
 
 - fixes imports
