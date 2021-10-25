@@ -17,5 +17,5 @@ How to trigger an action:
 
 ## TODO
 
-- [ ] implement the signing of the releases for the appstores? ()at least needed for .apk
+- [ ] implement the signing of the releases for the appstores? (at least needed for .apk)
 - [ ] use Github-Actions with [Fastlane](https://fastlane.tools/) for direct deployment to the app stores and more...
