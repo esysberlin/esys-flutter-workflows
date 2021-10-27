@@ -1,0 +1,32 @@
+name: Flutter CI/CD
+
+on: 
+  push:
+    tags:
+    - 'v*.*.*'
+    
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+
+    - name: Set env
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+    - name: Test
+      run: |
+        echo $RELEASE_VERSION
+        echo ${{ env.RELEASE_VERSION }}
+
+    - name: Copy Files
+      run: |
+        mkdir ${{ env.RELEASE_VERSION }}
+        touch ${{ env.RELEASE_VERSION }}/myfile.txt
+        cp ${{ env.RELEASE_VERSION }}/myfile.txt ${{ env.RELEASE_VERSION }}/myfile2.txt
+
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@4.1.0
+      with:
+        server: ftp.hidrive.strato.com
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PW }}
+        local-dir: ${{ env.RELEASE_VERSION }}
