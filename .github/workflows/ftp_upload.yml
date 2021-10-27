@@ -21,7 +21,7 @@ jobs:
       run: |
         mkdir ${{ env.RELEASE_VERSION }}
         touch ${{ env.RELEASE_VERSION }}/myfile.txt
-        cp ${{ env.RELEASE_VERSION }}/myfile.txt ${{ env.RELEASE_VERSION }}/myfile2.txt
+        cp ${{ env.RELEASE_VERSION }}/myfile.txt ${{ env.RELEASE_VERSION }}/${{ env.RELEASE_VERSION }}.txt
 
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@4.1.0
@@ -30,4 +30,4 @@ jobs:
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PW }}
         local-dir: ${{ env.RELEASE_VERSION }}/
-        server-dir: /users/esys-hdrive/Daniel/
+        server-dir: /users/esys-hdrive/Daniel/${{ env.RELEASE_VERSION }}/
