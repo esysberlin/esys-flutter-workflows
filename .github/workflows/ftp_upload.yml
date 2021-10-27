@@ -30,4 +30,4 @@ jobs:
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PW }}
         local-dir: ${{ env.RELEASE_VERSION }}/
-        server-dir: /users/esys-hdrive/Daniel/${{ env.RELEASE_VERSION }}/
+        server-dir: /users/esys-hdrive/Daniel/workflows/${{ env.RELEASE_VERSION }}/
