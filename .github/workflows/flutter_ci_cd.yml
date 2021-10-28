@@ -78,5 +78,5 @@ jobs:
       with:
         url: https://relay.esys.eu/v1/SendMail
         method: POST
-        payload: '{"from": "daniel@esys.de", "recipients": ["daniel@esys.de"], "subject": "Workflow-App ${{ env.RELEASE_VERSION }}", "textBody": "", "htmlBody": "Version ${{ env.RELEASE_VERSION }} of the Workflow-App is availible at the following Link: <a href="url">https://my.hidrive.com/share/xohhlsmq-x</a>."}'
+        payload: '{"from": "daniel@esys.de", "recipients": ["daniel@esys.de"], "subject": "Workflow-App ${{ env.RELEASE_VERSION }}", "textBody": "", "htmlBody": "Version ${{ env.RELEASE_VERSION }} of the Workflow-App is availible at the following Link: https://my.hidrive.com/share/xohhlsmq-x"}'
         headers: '{"apiKey": "${{ secrets.MAIL_API_KEY }}"}'
