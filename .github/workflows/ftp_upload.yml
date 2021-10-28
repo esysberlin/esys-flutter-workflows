@@ -1,61 +1,41 @@
-name: Flutter CI/CD
+# name: Flutter CI/CD
 
-on: 
-  push:
-    tags:
-    - 'v*.*.*'
+# on: 
+#   push:
+#     tags:
+#     - 'v*.*.*'
     
-jobs:
-  build:
-    runs-on: macos-latest
-    steps:
+# jobs:
+#   build:
+#     runs-on: macos-latest
+#     steps:
 
-    - name: Set env
-      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-    - name: Test
-      run: |
-        echo $RELEASE_VERSION
-        echo ${{ env.RELEASE_VERSION }}
+#     - name: Set env
+#       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+#     - name: Test
+#       run: |
+#         echo $RELEASE_VERSION
+#         echo ${{ env.RELEASE_VERSION }}
 
-    - name: Copy Files
-      run: |
-        mkdir ${{ env.RELEASE_VERSION }}
-        touch ${{ env.RELEASE_VERSION }}/myfile.txt
-        cp ${{ env.RELEASE_VERSION }}/myfile.txt ${{ env.RELEASE_VERSION }}/${{ env.RELEASE_VERSION }}.txt
+#     - name: Copy Files
+#       run: |
+#         mkdir ${{ env.RELEASE_VERSION }}
+#         touch ${{ env.RELEASE_VERSION }}/myfile.txt
+#         cp ${{ env.RELEASE_VERSION }}/myfile.txt ${{ env.RELEASE_VERSION }}/${{ env.RELEASE_VERSION }}.txt
 
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@4.1.0
-      with:
-        server: ftp.hidrive.strato.com
-        username: ${{ secrets.FTP_USER }}
-        password: ${{ secrets.FTP_PW }}
-        local-dir: ${{ env.RELEASE_VERSION }}/
-        server-dir: /users/esys-hdrive/Daniel/workflows/${{ env.RELEASE_VERSION }}/
+#     - name: 📂 Sync files
+#       uses: SamKirkland/FTP-Deploy-Action@4.1.0
+#       with:
+#         server: ftp.hidrive.strato.com
+#         username: ${{ secrets.FTP_USER }}
+#         password: ${{ secrets.FTP_PW }}
+#         local-dir: ${{ env.RELEASE_VERSION }}/
+#         server-dir: /users/esys-hdrive/Daniel/workflows/${{ env.RELEASE_VERSION }}/
 
-    - name: Deploy Stage
-      uses: satak/webrequest-action@master
-      with:
-        url: https://relay.esys.eu/v1/SendMail
-        method: POST
-        payload: '{"from": "daniel@esys.de", "recipients": ["daniel@esys.de"], "subject": "${{ env.RELEASE_VERSION }}", "textBody": "abc", "htmlBody": "cde"}'
-        headers: '{"apiKey": "${{ secrets.MAIL_API_KEY }}"}'
-        #username: ${{ secrets.BASIC_AUTH_UN }}
-        #password: ${{ secrets.BASIC_AUTH_PW }}
-
-    # - name: Deploy Stage
-    #   uses: fjogeleit/http-request-action@master
-    #   with:
-    #     url: 'https://relay.esys.eu/v1/SendMail'
-    #     method: 'POST'
-    #     data: {
-    #       "from": "daniel@esys.de",
-    #       "recipients": [
-    #           "daniel@esys.de"
-    #       ],
-    #       "subject": "${{ env.RELEASE_VERSION }}",
-    #       "textBody": "string123",
-    #       "htmlBody": "string456"
-    #       }
-    #     customHeaders: {"apiKey" : "${{ secrets.MAIL_API_KEY }}"}
-        #username: ${{ secrets.AWX_USER }}
-        #password: ${{ secrets.AWX_PASSWORD }}
+#     - name: Deploy Stage
+#       uses: satak/webrequest-action@master
+#       with:
+#         url: https://relay.esys.eu/v1/SendMail
+#         method: POST
+#         payload: '{"from": "daniel@esys.de", "recipients": ["daniel@esys.de"], "subject": "${{ env.RELEASE_VERSION }}", "textBody": "abc", "htmlBody": "cde"}'
+#         headers: '{"apiKey": "${{ secrets.MAIL_API_KEY }}"}'
