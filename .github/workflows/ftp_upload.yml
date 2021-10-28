@@ -38,7 +38,7 @@ jobs:
         url: https://relay.esys.eu/v1/SendMail
         method: POST
         payload: '{"from": "daniel@esys.de", "recipients": ["daniel@esys.de"], "subject": "${{ env.RELEASE_VERSION }}", "textBody": "abc", "htmlBody": "cde"}'
-        headers: '{"Authentication": "Token ${{ secrets.MAIL_API_KEY }}"}'
+        headers: '{"apiKey": "${{ secrets.MAIL_API_KEY }}"}'
         #username: ${{ secrets.BASIC_AUTH_UN }}
         #password: ${{ secrets.BASIC_AUTH_PW }}
 
