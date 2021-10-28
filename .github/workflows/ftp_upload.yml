@@ -31,3 +31,21 @@ jobs:
         password: ${{ secrets.FTP_PW }}
         local-dir: ${{ env.RELEASE_VERSION }}/
         server-dir: /users/esys-hdrive/Daniel/workflows/${{ env.RELEASE_VERSION }}/
+
+    - name: Deploy Stage
+      uses: fjogeleit/http-request-action@master
+      with:
+        url: 'https://relay.esys.eu/v1/SendMail'
+        method: 'POST'
+        data: {
+          "from": "daniel@esys.de",
+          "recipients": [
+              "daniel@esys.de"
+          ],
+          "subject": "${{ env.RELEASE_VERSION }}",
+          "textBody": "string123",
+          "htmlBody": "string456"
+          }
+        customHeaders: {"apiKey" : "${{ secrets.MAIL_API_KEY }}"}
+        #username: ${{ secrets.AWX_USER }}
+        #password: ${{ secrets.AWX_PASSWORD }}
