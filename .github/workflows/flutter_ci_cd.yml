@@ -72,7 +72,7 @@ jobs:
         cd "${TMP_ANDROID_TOOLS_PATH}"
         curl -o buildtools.zip "https://dl.google.com/android/repository/build-tools_r30.0.1-macosx.zip"
         unzip "${TMP_ANDROID_TOOLS_PATH}"/*.zip
-        "${TMP_ANDROID_TOOLS_PATH}"/*/apksigner sign --ks "${TMP_KEYSTORE_FILE_PATH}"/*.jks --ks-key-alias "${secrets.ANDROID_SIGNING_ALIAS}" --ks-pass pass:"${secrets.ANDROID_SIGNING_KEYSTORE_PW}" build/app/outputs/flutter-apk/*.apk
+        "${TMP_ANDROID_TOOLS_PATH}"/*/apksigner sign --ks "${TMP_KEYSTORE_FILE_PATH}"/*.jks --ks-key-alias ${{ secrets.ANDROID_SIGNING_ALIAS }} --ks-pass pass:${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }} build/app/outputs/flutter-apk/*.apk
         "${TMP_ANDROID_TOOLS_PATH}"/*/apksigner verify -v -v4-signature-file build/app/outputs/flutter-apk/*.idsig *.apk
 
     # - name: Sign .apk
