@@ -48,13 +48,20 @@ jobs:
     - name: Build .apk
       run: flutter build apk --release
 
-    - name: Decode Keystore
-      env:
-          ENCODED_STRING: ${{ secrets.ANDROID_SIGNING_KEY }}
+    - name: Extract Android signing key from env
       run: |
-          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
-          mkdir "${TMP_KEYSTORE_FILE_PATH}"
-          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/keystore.jks
+        TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+        mkdir "${TMP_KEYSTORE_FILE_PATH}"
+        echo "${{ secrets.ANDROID_SIGNING_KEY }}" > "${TMP_KEYSTORE_FILE_PATH}"/keystore.jks.base64
+        base64 -d "${TMP_KEYSTORE_FILE_PATH}"/keystore.jks.base64 > "${TMP_KEYSTORE_FILE_PATH}"/keystore.jks
+
+    # - name: Decode Keystore
+    #   env:
+    #       ENCODED_STRING: ${{ secrets.ANDROID_SIGNING_KEY }}
+    #   run: |
+    #       TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+    #       mkdir "${TMP_KEYSTORE_FILE_PATH}"
+    #       echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/keystore.jks
 
 #build/app/outputs/flutter-apk/app-release.apk
 
@@ -63,10 +70,10 @@ jobs:
         TMP_ANDROID_TOOLS_PATH="${RUNNER_TEMP}"/buildtools
         mkdir "${TMP_ANDROID_TOOLS_PATH}"
         cd "${TMP_ANDROID_TOOLS_PATH}"
-        curl -o buildtools.zip 'https://dl.google.com/android/repository/build-tools_r30.0.1-macosx.zip'
-        unzip *.zip
-        */apksigner sign --ks ${TMP_KEYSTORE_FILE_PATH}/*.jks --ks-key-alias ${secrets.ANDROID_SIGNING_ALIAS} --ks-pass pass:${secrets.ANDROID_SIGNING_KEYSTORE_PW} build/app/outputs/flutter-apk/*.apk
-        */apksigner verify -v -v4-signature-file build/app/outputs/flutter-apk/*.idsig *.apk
+        curl -o buildtools.zip "https://dl.google.com/android/repository/build-tools_r30.0.1-macosx.zip"
+        unzip "${TMP_ANDROID_TOOLS_PATH}"/*.zip
+        "${TMP_ANDROID_TOOLS_PATH}"/*/apksigner sign --ks "${TMP_KEYSTORE_FILE_PATH}"/*.jks --ks-key-alias "${secrets.ANDROID_SIGNING_ALIAS}" --ks-pass pass:"${secrets.ANDROID_SIGNING_KEYSTORE_PW}" build/app/outputs/flutter-apk/*.apk
+        "${TMP_ANDROID_TOOLS_PATH}"/*/apksigner verify -v -v4-signature-file build/app/outputs/flutter-apk/*.idsig *.apk
 
     # - name: Sign .apk
     #   uses: r0adkll/sign-android-release@v1
