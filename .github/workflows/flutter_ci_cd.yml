@@ -86,7 +86,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "
-        build/release/signed*,
+        build/release/signed/*,
         build/ios/iphoneos/*.ipa,
         "
         token: ${{ secrets.GITHUB_TOKEN }}
