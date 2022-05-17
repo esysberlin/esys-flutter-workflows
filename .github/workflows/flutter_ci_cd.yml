@@ -14,7 +14,7 @@ jobs:
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     
     - name: Checkout repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     - name: Set up Java
       uses: actions/setup-java@v2
       with:
@@ -34,49 +34,82 @@ jobs:
     
     - name: Statically analyze the Dart code for any errors
       run: flutter analyze .
+
+    - name: Create generated files
+      run: |
+        flutter pub run intl_utils:generate
+        dart run build_runner build
     
     - name: Run Tests
       run: flutter test
     
-    - name: Build Android App
+    # build android artifacts
+    - name: Build .apk prod
       run: flutter build apk --release
-    
-    - name: Build iOS App
+
+    - name: Build .aab prod
+      run: flutter build appbundle --release
+
+    - name: Sign app APK
+      uses: Tlaster/android-sign@v1
+      with:
+        releaseDirectory: |
+          build/app/outputs/apk/release
+          build/app/outputs/bundle
+        signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
+        output: build/release/signed
+        alias: ${{ secrets.ANDROID_SIGNING_ALIAS }}
+        keyStorePassword: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
+      env:
+        BUILD_TOOLS_VERSION: "30.0.2"
+
+    # build iOS artifacts
+    - name: Build .ipa prod
       run: |
-        flutter build ios --no-codesign
+        flutter build ios --no-codesign --release
         cd build/ios/iphoneos
         mkdir Payload
         cd Payload
         ln -s ../Runner.app
         cd ..
-        zip -r app.ipa Payload
+        zip -r app-release.ipa Payload
 
+    # - name: Release Apps
+    #   uses: ncipollo/release-action@v1
+    #   with:
+    #     artifacts: "build/app/outputs/apk/release/*.apk,build/ios/iphoneos/app.ipa"
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+
+    # create release with artifacts
     - name: Release Apps
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "build/app/outputs/apk/release/*.apk,build/ios/iphoneos/app.ipa"
+        artifacts: "
+        build/release/signed*,
+        build/ios/iphoneos/*.ipa,
+        "
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Prepare files for ftp upload
-      run: |
-        mkdir upload
-        cp build/app/outputs/apk/release/*.apk upload/
-        cp build/ios/iphoneos/app.ipa upload/
-        cp CHANGELOG.md upload/
+    # - name: Prepare files for ftp upload
+    #   run: |
+    #     mkdir upload
+    #     cp build/app/outputs/apk/release/*.apk upload/
+    #     cp build/ios/iphoneos/app.ipa upload/
+    #     cp CHANGELOG.md upload/
 
-    - name: Sync files to ftp server
-      uses: SamKirkland/FTP-Deploy-Action@4.1.0
-      with:
-        server: ftp.hidrive.strato.com
-        username: ${{ secrets.FTP_USER }}
-        password: ${{ secrets.FTP_PW }}
-        local-dir: upload/
-        server-dir: /users/esys-hdrive/Daniel/workflows/${{ env.RELEASE_VERSION }}/
+    # - name: Sync files to ftp server
+    #   uses: SamKirkland/FTP-Deploy-Action@4.1.0
+    #   with:
+    #     server: ftp.hidrive.strato.com
+    #     username: ${{ secrets.FTP_USER }}
+    #     password: ${{ secrets.FTP_PW }}
+    #     local-dir: upload/
+    #     server-dir: /users/esys-hdrive/Daniel/workflows/${{ env.RELEASE_VERSION }}/
 
-    - name: Send mail
-      uses: satak/webrequest-action@master
-      with:
-        url: https://relay.esys.eu/v1/SendMail
-        method: POST
-        payload: '{"from": "daniel@esys.de", "recipients": ["daniel@esys.de"], "subject": "Workflow-App ${{ env.RELEASE_VERSION }}", "textBody": "", "htmlBody": "Version ${{ env.RELEASE_VERSION }} of the Workflow-App is availible at the following Link: https://my.hidrive.com/share/xohhlsmq-x"}'
-        headers: '{"apiKey": "${{ secrets.MAIL_API_KEY }}"}'
+    # - name: Send mail
+    #   uses: satak/webrequest-action@master
+    #   with:
+    #     url: https://relay.esys.eu/v1/SendMail
+    #     method: POST
+    #     payload: '{"from": "daniel@esys.de", "recipients": ["daniel@esys.de"], "subject": "Workflow-App ${{ env.RELEASE_VERSION }}", "textBody": "", "htmlBody": "Version ${{ env.RELEASE_VERSION }} of the Workflow-App is availible at the following Link: https://my.hidrive.com/share/xohhlsmq-x"}'
+    #     headers: '{"apiKey": "${{ secrets.MAIL_API_KEY }}"}'
