@@ -86,7 +86,10 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "
-        build/release/signed/*,
+        build/release/signed/*.apk,
+        build/release/signed/*.apk.idsig,
+        build/release/signed/*.aab,
+        build/release/signed/*.aab.idsig,
         build/ios/iphoneos/*.ipa,
         "
         token: ${{ secrets.GITHUB_TOKEN }}
