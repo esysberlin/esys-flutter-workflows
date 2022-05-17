@@ -24,24 +24,25 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v1
       with:
+        flutter-version: '3.0.0'
         channel: 'stable'
         
     - name: Install pub Dependencies
       run: flutter pub get
     
-    - name: Check for any formatting issues
-      run: flutter format --set-exit-if-changed .
+    # - name: Check for any formatting issues
+    #   run: flutter format --set-exit-if-changed .
     
-    - name: Statically analyze the Dart code for any errors
-      run: flutter analyze .
+    # - name: Statically analyze the Dart code for any errors
+    #   run: flutter analyze .
 
-    - name: Create generated files
-      run: |
-        flutter pub run intl_utils:generate
-        dart run build_runner build
+    # - name: Create generated files
+    #   run: |
+    #     flutter pub run intl_utils:generate
+    #     dart run build_runner build
     
-    - name: Run Tests
-      run: flutter test
+    # - name: Run Tests
+    #   run: flutter test
     
     # build android artifacts
     - name: Build .apk prod
@@ -51,7 +52,7 @@ jobs:
       run: flutter build appbundle --release
 
     - name: Sign app APK
-      uses: Tlaster/android-sign@v1
+      uses: Tlaster/android-sign@v1.2.2
       with:
         releaseDirectory: |
           build/app/outputs/apk/release
