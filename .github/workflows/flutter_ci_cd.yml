@@ -48,35 +48,55 @@ jobs:
     - name: Build .apk
       run: flutter build apk --release
 
+    - name: Decode Keystore
+      env:
+          ENCODED_STRING: ${{ secrets.ANDROID_SIGNING_KEY }}
+      run: |
+          TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+          mkdir "${TMP_KEYSTORE_FILE_PATH}"
+          echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/keystore.jks
+
+#build/app/outputs/flutter-apk/app-release.apk
+
     - name: Sign .apk
-      uses: r0adkll/sign-android-release@v1
-      with:
-        releaseDirectory: build/app/outputs/apk/release
-        signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
-        alias: ${{ secrets.ANDROID_SIGNING_ALIAS }}
-        keyStorePassword: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
+      run: |
+        TMP_ANDROID_TOOLS_PATH="${RUNNER_TEMP}"/buildtools
+        mkdir "${TMP_ANDROID_TOOLS_PATH}"
+        cd "${TMP_ANDROID_TOOLS_PATH}"
+        curl -o buildtools.zip 'https://dl.google.com/android/repository/build-tools_r30.0.1-macosx.zip'
+        unzip *.zip
+        */apksigner sign --ks ${TMP_KEYSTORE_FILE_PATH}/*.jks --ks-key-alias ${secrets.ANDROID_SIGNING_ALIAS} --ks-pass pass:${secrets.ANDROID_SIGNING_KEYSTORE_PW} build/app/outputs/flutter-apk/*.apk
+        */apksigner verify -v -v4-signature-file build/app/outputs/flutter-apk/*.idsig *.apk
 
-    - name: Build .aab
-      run: flutter build appbundle --release
+    # - name: Sign .apk
+    #   uses: r0adkll/sign-android-release@v1
+    #   with:
+    #     releaseDirectory: build/app/outputs/apk/release
+    #     signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
+    #     alias: ${{ secrets.ANDROID_SIGNING_ALIAS }}
+    #     keyStorePassword: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
 
-    - name: Sign .aab
-      uses: r0adkll/sign-android-release@v1
-      with:
-        releaseDirectory: build/app/outputs/bundle/release
-        signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
-        alias: ${{ secrets.ANDROID_SIGNING_ALIAS }}
-        keyStorePassword: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
+    # - name: Build .aab
+    #   run: flutter build appbundle --release
+
+    # - name: Sign .aab
+    #   uses: r0adkll/sign-android-release@v1
+    #   with:
+    #     releaseDirectory: build/app/outputs/bundle/release
+    #     signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
+    #     alias: ${{ secrets.ANDROID_SIGNING_ALIAS }}
+    #     keyStorePassword: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
 
     # build iOS artifacts
-    - name: Build .ipa prod
-      run: |
-        flutter build ios --no-codesign --release
-        cd build/ios/iphoneos
-        mkdir Payload
-        cd Payload
-        ln -s ../Runner.app
-        cd ..
-        zip -r app-release.ipa Payload
+    # - name: Build .ipa prod
+    #   run: |
+    #     flutter build ios --no-codesign --release
+    #     cd build/ios/iphoneos
+    #     mkdir Payload
+    #     cd Payload
+    #     ln -s ../Runner.app
+    #     cd ..
+    #     zip -r app-release.ipa Payload
 
     # - name: Release Apps
     #   uses: ncipollo/release-action@v1
@@ -85,15 +105,15 @@ jobs:
     #     token: ${{ secrets.GITHUB_TOKEN }}
 
     # create release with artifacts
-    - name: Release Apps
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: "
-        ${{steps.sign_apk.outputs.signedReleaseFile}},
-        ${{steps.sign_aab.outputs.signedReleaseFile}},
-        build/ios/iphoneos/*.ipa,
-        "
-        token: ${{ secrets.GITHUB_TOKEN }}
+    # - name: Release Apps
+    #   uses: ncipollo/release-action@v1
+    #   with:
+    #     artifacts: "
+    #     ${{steps.sign_apk.outputs.signedReleaseFile}},
+    #     ${{steps.sign_aab.outputs.signedReleaseFile}},
+    #     build/ios/iphoneos/*.ipa,
+    #     "
+    #     token: ${{ secrets.GITHUB_TOKEN }}
 
     # - name: Prepare files for ftp upload
     #   run: |
