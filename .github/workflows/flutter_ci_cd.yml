@@ -45,24 +45,27 @@ jobs:
     #   run: flutter test
     
     # build android artifacts
-    - name: Build .apk prod
+    - name: Build .apk
       run: flutter build apk --release
 
-    - name: Build .aab prod
-      run: flutter build appbundle --release
-
-    - name: Sign app APK
-      uses: Tlaster/android-sign@v1.2.2
+    - name: Sign .apk
+      uses: r0adkll/sign-android-release@v1
       with:
-        releaseDirectory: |
-          build/app/outputs/apk/release
-          build/app/outputs/bundle
+        releaseDirectory: build/app/outputs/apk/release
         signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
-        output: build/release/signed
         alias: ${{ secrets.ANDROID_SIGNING_ALIAS }}
         keyStorePassword: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
-      env:
-        BUILD_TOOLS_VERSION: "30.0.2"
+
+    - name: Build .aab
+      run: flutter build appbundle --release
+
+    - name: Sign .aab
+      uses: r0adkll/sign-android-release@v1
+      with:
+        releaseDirectory: build/app/outputs/bundle
+        signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
+        alias: ${{ secrets.ANDROID_SIGNING_ALIAS }}
+        keyStorePassword: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
 
     # build iOS artifacts
     - name: Build .ipa prod
@@ -86,10 +89,8 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "
-        build/release/signed/*.apk,
-        build/release/signed/*.apk.idsig,
-        build/release/signed/*.aab,
-        build/release/signed/*.aab.idsig,
+        ${{steps.sign_apk.outputs.signedReleaseFile}},
+        ${{steps.sign_aab.outputs.signedReleaseFile}},
         build/ios/iphoneos/*.ipa,
         "
         token: ${{ secrets.GITHUB_TOKEN }}
