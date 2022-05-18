@@ -49,14 +49,6 @@ jobs:
     - name: Build .apk
       run: flutter build apk --release
 
-
-# steps:
-#   - shell: bash
-#     env:
-#       SUPER_SECRET: ${{ secrets.SuperSecret }}
-#     run: |
-#       example-command "$SUPER_SECRET"
-
     - name: Sign .apk
       env:
         ANDROID_SIGNING_ALIAS: ${{ secrets.ANDROID_SIGNING_ALIAS }}
@@ -77,8 +69,8 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "
-        ${GITHUB_WORKSPACE}/build/app/outputs/flutter-apk/*.idsig,
-        ${GITHUB_WORKSPACE}/build/app/outputs/flutter-apk/*.apk,
+        ${GITHUB_WORKSPACE}/build/app/outputs/apk/release/*.apk
+        ${GITHUB_WORKSPACE}/build/app/outputs/apk/release/*.idsig,
         "
         token: ${{ secrets.GITHUB_TOKEN }}
 
