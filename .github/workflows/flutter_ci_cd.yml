@@ -60,6 +60,7 @@ jobs:
         base64 -d "${RUNNER_TEMP}"/keystore/keystore.jks.base64 > "${RUNNER_TEMP}"/keystore/keystore.jks
         cd "${RUNNER_TEMP}"/buildtools
         curl -o buildtools.zip "https://dl.google.com/android/repository/build-tools_r33-rc3-macosx.zip"
+        cd "${GITHUB_WORKSPACE}"
         unzip "${RUNNER_TEMP}"/buildtools/*.zip
         flutter build apk --release
         "${RUNNER_TEMP}"/buildtools/*/zipalign -p -f -v 4 "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk "${RUNNER_TEMP}"/release/apk/aligned/release_aligned.apk
