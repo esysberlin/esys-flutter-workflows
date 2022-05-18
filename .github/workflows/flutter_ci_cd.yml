@@ -4,7 +4,7 @@ on:
   push:
     tags:
     - 'v*.*.*'
-    
+
 jobs:
   build:
     runs-on: macos-latest
@@ -44,12 +44,8 @@ jobs:
     
     # - name: Run Tests
     #   run: flutter test
-    
-    # build android artifacts
-    - name: Build .apk
-      run: flutter build apk --release
 
-    - name: Sign .apk
+    - name: Build and sign android
       env:
         ANDROID_SIGNING_ALIAS: ${{ secrets.ANDROID_SIGNING_ALIAS }}
         ANDROID_SIGNING_KEYSTORE_PW: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
@@ -63,7 +59,7 @@ jobs:
         echo "${ANDROID_SIGNING_KEY}" > "${RUNNER_TEMP}"/keystore/keystore.jks.base64
         base64 -d "${RUNNER_TEMP}"/keystore/keystore.jks.base64 > "${RUNNER_TEMP}"/keystore/keystore.jks
         cd "${RUNNER_TEMP}"/buildtools
-        curl -o buildtools.zip "https://dl.google.com/android/repository/build-tools_r30.0.1-macosx.zip"
+        curl -o buildtools.zip "https://dl.google.com/android/repository/build-tools_r33-rc3-macosx.zip"
         unzip "${RUNNER_TEMP}"/buildtools/*.zip
         flutter build apk --release
         "${RUNNER_TEMP}"/buildtools/*/zipalign -p -f -v 4 "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk "${RUNNER_TEMP}"/aligned/release_aligned.apk
