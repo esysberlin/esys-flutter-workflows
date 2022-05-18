@@ -106,7 +106,7 @@ jobs:
         cd Payload
         ln -s ../Runner.app
         cd ..
-        zip -r app-release.ipa Payload
+        zip -r signed.ipa Payload
         echo "done"
 
     - name: Create GitHub release with artifacts
