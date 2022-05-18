@@ -51,25 +51,18 @@ jobs:
         ANDROID_SIGNING_KEYSTORE_PW: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
         ANDROID_SIGNING_KEY: ${{ secrets.ANDROID_SIGNING_KEY }}
       run: |
-        APKSIGNER=~/Library/Android/sdk/build-tools/32.*/apksigner
-        ZIPALIGN=~/Library/Android/sdk/build-tools/32.*/zipalign
-        mkdir -p "${RUNNER_TEMP}"/buildtools
         mkdir -p "${RUNNER_TEMP}"/keystore
         echo "${ANDROID_SIGNING_KEY}" > "${RUNNER_TEMP}"/keystore/keystore.jks.base64
         base64 -d "${RUNNER_TEMP}"/keystore/keystore.jks.base64 > "${RUNNER_TEMP}"/keystore/keystore.jks
-        cd "${RUNNER_TEMP}"/buildtools
-        curl -o buildtools.zip "https://dl.google.com/android/repository/build-tools_r33-rc3-macosx.zip"
-        unzip "${RUNNER_TEMP}"/buildtools/*.zip
-        cd "${GITHUB_WORKSPACE}"
         flutter build apk --release
         mkdir -p "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/
         mkdir -p "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/
-        "${RUNNER_TEMP}"/buildtools/*/zipalign -p -f -v 4 "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/aligned.apk
-        "${RUNNER_TEMP}"/buildtools/*/apksigner sign --out "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/signed.apk --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/*.apk
-        "${RUNNER_TEMP}"/buildtools/*/apksigner verify -v -v4-signature-file "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/*.idsig "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/*.apk
+        ~/Library/Android/sdk/build-tools/32.*/zipalign -p -f -v 4 "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/aligned.apk
+        ~/Library/Android/sdk/build-tools/32.*/apksigner sign --out "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/signed.apk --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/*.apk
+        ~/Library/Android/sdk/build-tools/32.*/apksigner verify -v -v4-signature-file "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/*.idsig "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/*.apk
         flutter build appbundle
         mkdir -p "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/signed
-        "${RUNNER_TEMP}"/buildtools/*/apksigner sign --out "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/signed/signed.aab --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" --min-sdk-version 26 "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/*.aab
+        ~/Library/Android/sdk/build-tools/32.*/apksigner sign --out "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/signed/signed.aab --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" --min-sdk-version 26 "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/*.aab
 
     - name: Create GitHub release with artifacts
       uses: ncipollo/release-action@v1
