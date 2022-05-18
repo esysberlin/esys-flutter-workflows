@@ -63,15 +63,15 @@ jobs:
         ANDROID_SIGNING_KEYSTORE_PW: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
         ANDROID_SIGNING_KEY: ${{ secrets.ANDROID_SIGNING_KEY }}
       run: |
-        mkdir "{$RUNNER_TEMP}/keystore"
-        echo "${ANDROID_SIGNING_KEY}" > "${RUNNER_TEMP}/keystore/keystore.jks.base64"
-        base64 -d "${RUNNER_TEMP}/keystore/keystore.jks.base64" > "${RUNNER_TEMP}/keystore/keystore.jks"
-        mkdir "${RUNNER_TEMP}/buildtools"
-        cd "${RUNNER_TEMP}/buildtools"
+        mkdir "${RUNNER_TEMP}"/keystore
+        echo "${ANDROID_SIGNING_KEY}" > "${RUNNER_TEMP}"/keystore/keystore.jks.base64
+        base64 -d "${RUNNER_TEMP}"/keystore/keystore.jks.base64 > "${RUNNER_TEMP}"/keystore/keystore.jks
+        mkdir "${RUNNER_TEMP}"/buildtools
+        cd "${RUNNER_TEMP}"/buildtools
         curl -o buildtools.zip "https://dl.google.com/android/repository/build-tools_r30.0.1-macosx.zip"
-        unzip "${RUNNER_TEMP}/buildtools/*.zip"
-        "${RUNNER_TEMP}/buildtools/*/apksigner" sign --ks "${RUNNER_TEMP}/keystore/keystore.jks" --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${GITHUB_WORKSPACE}/build/app/outputs/flutter-apk/*.apk"
-        "${RUNNER_TEMP}/buildtools/*/apksigner" verify -v -v4-signature-file "${GITHUB_WORKSPACE}/build/app/outputs/flutter-apk/*.idsig" "${GITHUB_WORKSPACE}/build/app/outputs/flutter-apk/*.apk"
+        unzip "${RUNNER_TEMP}"/buildtools/*.zip
+        "${RUNNER_TEMP}"/buildtools/*/apksigner sign --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "$ANDROID_SIGNING_ALIAS" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${GITHUB_WORKSPACE}"/build/app/outputs/flutter-apk/*.apk
+        "${RUNNER_TEMP}"/buildtools/*/apksigner verify -v -v4-signature-file "${GITHUB_WORKSPACE}"/build/app/outputs/flutter-apk/*.idsig "${GITHUB_WORKSPACE}"/build/app/outputs/flutter-apk/*.apk
 
     - name: Create release with artifacts
       uses: ncipollo/release-action@v1
