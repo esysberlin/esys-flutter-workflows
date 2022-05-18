@@ -51,19 +51,19 @@ jobs:
         ANDROID_SIGNING_KEYSTORE_PW: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PW }}
         ANDROID_SIGNING_KEY: ${{ secrets.ANDROID_SIGNING_KEY }}
       run: |
-        mkdir "${RUNNER_TEMP}"/buildtools
-        mkdir "${RUNNER_TEMP}"/release/apk
-        mkdir "${RUNNER_TEMP}"/release/bundle
-        mkdir "${RUNNER_TEMP}"/keystore
-        mkdir "${RUNNER_TEMP}"/aligned
+        mkdir -p "${RUNNER_TEMP}"/buildtools
+        mkdir -p "${RUNNER_TEMP}"/release/apk
+        mkdir -p "${RUNNER_TEMP}"/release/apk/aligned
+        mkdir -p "${RUNNER_TEMP}"/release/bundle
+        mkdir -p "${RUNNER_TEMP}"/keystore
         echo "${ANDROID_SIGNING_KEY}" > "${RUNNER_TEMP}"/keystore/keystore.jks.base64
         base64 -d "${RUNNER_TEMP}"/keystore/keystore.jks.base64 > "${RUNNER_TEMP}"/keystore/keystore.jks
         cd "${RUNNER_TEMP}"/buildtools
         curl -o buildtools.zip "https://dl.google.com/android/repository/build-tools_r33-rc3-macosx.zip"
         unzip "${RUNNER_TEMP}"/buildtools/*.zip
         flutter build apk --release
-        "${RUNNER_TEMP}"/buildtools/*/zipalign -p -f -v 4 "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk "${RUNNER_TEMP}"/aligned/release_aligned.apk
-        "${RUNNER_TEMP}"/buildtools/*/apksigner sign --out "${RUNNER_TEMP}"/release/apk/signed.apk --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${RUNNER_TEMP}"/aligned/*.apk
+        "${RUNNER_TEMP}"/buildtools/*/zipalign -p -f -v 4 "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk "${RUNNER_TEMP}"/release/apk/aligned/release_aligned.apk
+        "${RUNNER_TEMP}"/buildtools/*/apksigner sign --out "${RUNNER_TEMP}"/release/apk/signed.apk --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${RUNNER_TEMP}"/release/apk/aligned/*.apk
         "${RUNNER_TEMP}"/buildtools/*/apksigner verify -v -v4-signature-file "${RUNNER_TEMP}"/release/apk/*.idsig "${RUNNER_TEMP}"/release/apk/*.apk
         flutter build appbundle
         "${RUNNER_TEMP}"/buildtools/*/apksigner sign --out "${RUNNER_TEMP}"/release/bundle --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" --min-sdk-version 26 "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/*.aab
