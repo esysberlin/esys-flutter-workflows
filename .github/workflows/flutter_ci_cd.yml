@@ -66,7 +66,7 @@ jobs:
         unzip "${RUNNER_TEMP}"/buildtools/*.zip
         "${RUNNER_TEMP}"/buildtools/*/apksigner sign --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk
         "${RUNNER_TEMP}"/buildtools/*/apksigner verify -v -v4-signature-file "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.idsig "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk
-        "${RUNNER_TEMP}"/buildtools/*/apksigner sign --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/*.aab
+        "${RUNNER_TEMP}"/buildtools/*/apksigner sign --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" --min-sdk-version 21 "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/*.aab
         "${RUNNER_TEMP}"/buildtools/*/apksigner verify -v -v4-signature-file "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/*.idsig "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/*.aab
 
     - name: Create GitHub release with artifacts
