@@ -99,8 +99,16 @@ jobs:
         echo "build app"
         flutter build ios --no-codesign --release
         cd build/ios/iphoneos
+        echo "remove the old code signature files"
+        rm -rf Runner.app/_CodeSignature
+        echo "replace the existing provisioning profile"
+        cp ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision Runner.app/embedded.mobileprovision
         echo "codesign"
+        # optional --entitlements entitlements.plist
         codesign -s "workflow_test" Runner.app
+        # also resign all frameworks included in the app
+        # optional --entitlements entitlements.plist
+        codesign -f -s "workflow_test" Runner.app/Frameworks/*
         echo "zip ipa"
         mkdir Payload
         cd Payload
