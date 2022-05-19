@@ -2,8 +2,7 @@ name: Flutter CI/CD
 
 # only run on tags in the format v.*.*.*
 #
-# git tag git tag v1.0.1+2
-# git push origin --tags
+# git tag v1.0.1+2 && git push origin --tags
 on: 
   push:
     tags:
