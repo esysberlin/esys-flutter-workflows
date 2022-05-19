@@ -146,10 +146,10 @@ jobs:
         # replace the existing provisioning profile
         cp ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision Runner.app/embedded.mobileprovision
         
-        # sign app (optional: --entitlements entitlements.plist)
+        # sign app (optional: --entitlements entitlements.plist) with "Common Name" of the certificate
         codesign -s "workflow_test" Runner.app
 
-        # resign all frameworks (optional: --entitlements entitlements.plist)
+        # resign all frameworks (optional: --entitlements entitlements.plist) with "Common Name" of the certificate
         codesign -f -s "workflow_test" Runner.app/Frameworks/*
 
         # zip app to ipa
