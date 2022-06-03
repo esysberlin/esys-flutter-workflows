@@ -1,6 +1,6 @@
 # workflows
 
-[![Flutter CI/CD](https://github.com/esysberlin/esys-flutter-workflows/actions/workflows/flutter_ci_cd.yml/badge.svg)](https://github.com/esysberlin/esys-flutter-workflows/actions/workflows/flutter_ci_cd.yml)
+[![Flutter CI/CD](https://github.com/esysberlin/esys-flutter-workflows/actions/workflows/flutter_ci_cd.yml/badge.svg?branch=main&event=workflow_run)](https://github.com/esysberlin/esys-flutter-workflows/actions/workflows/flutter_ci_cd.yml)
 
 Demonstrates the use of Github workflows with Flutter.
 

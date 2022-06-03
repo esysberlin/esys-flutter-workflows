@@ -27,11 +27,6 @@ jobs:
       with:
         flutter-version: '3.0.0'
         channel: 'stable'
-    
-    - name: flutter cfg
-      run: |
-        cd /usr/local/lib/android/sdk/build-tools/32.0.0
-        ls
 
     # get the dependencies listed in the pubspec.yaml
     - name: Install dependencies
