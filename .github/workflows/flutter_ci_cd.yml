@@ -89,26 +89,6 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
     
-    # replace the whitespace in your program with formatting that follows Dart guidelines
-    # make the command have an exit code of 1 if any formatting changes occur
-    #
-    # https://dart.dev/tools/dart-format
-    - name: Check for any formatting issues
-      run: flutter format --set-exit-if-changed .
-    
-    # Exclude generated files in "analysis_optins.yaml" before analyzing.
-    #
-    # analyzer:
-    #   exclude:
-    #     - doc/**
-    #     - lib/generated/**
-    #     - playground/**
-    #     - '**.freezed.dart'
-    #     - '**.g.dart'
-    - name: Statically analyze code
-      run: flutter analyze .
-
-    # generate missing files
     - name: Create generated files
       run: |
         # generate language files for https://marketplace.visualstudio.com/items?itemName=localizely.flutter-intl
@@ -135,12 +115,15 @@ jobs:
         # build .apk
         flutter build apk --release
 
+        # ls
+        ls
+
         # align and sign .apk
         mkdir -p "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/
         mkdir -p "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/
-        ~/Library/Android/sdk/build-tools/32.*/zipalign -p -f -v 4 "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/aligned.apk
-        ~/Library/Android/sdk/build-tools/32.*/apksigner sign --out "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/signed.apk --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/*.apk
-        ~/Library/Android/sdk/build-tools/32.*/apksigner verify -v -v4-signature-file "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/*.idsig "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/*.apk
+        ~/Android/sdk/build-tools/32.*/zipalign -p -f -v 4 "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/*.apk "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/aligned.apk
+        ~/Android/sdk/build-tools/32.*/apksigner sign --out "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/signed.apk --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/*.apk
+        ~/Android/sdk/build-tools/32.*/apksigner verify -v -v4-signature-file "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/*.idsig "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/signed/*.apk
         
         # create appbundle
         flutter build appbundle
@@ -188,25 +171,6 @@ jobs:
     # get the dependencies listed in the pubspec.yaml
     - name: Install dependencies
       run: flutter pub get
-    
-    # replace the whitespace in your program with formatting that follows Dart guidelines
-    # make the command have an exit code of 1 if any formatting changes occur
-    #
-    # https://dart.dev/tools/dart-format
-    - name: Check for any formatting issues
-      run: flutter format --set-exit-if-changed .
-    
-    # Exclude generated files in "analysis_optins.yaml" before analyzing.
-    #
-    # analyzer:
-    #   exclude:
-    #     - doc/**
-    #     - lib/generated/**
-    #     - playground/**
-    #     - '**.freezed.dart'
-    #     - '**.g.dart'
-    - name: Statically analyze code
-      run: flutter analyze .
 
     # generate missing files
     - name: Create generated files
