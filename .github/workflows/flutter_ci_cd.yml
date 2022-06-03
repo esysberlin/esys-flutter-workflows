@@ -31,7 +31,7 @@ jobs:
     - name: ls1
       run: |
         ls  ~/
-        ls  ~/Runner/
+        ls  ~/runners/
         ls /usr/lib/android-sdk/
         ls /Library/Android/sdk/
         ls /Users/*/Library/Android/sdk/
