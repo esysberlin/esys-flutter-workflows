@@ -30,12 +30,7 @@ jobs:
         
     - name: ls1
       run: |
-        ls  ~/
-        echo "XXXXXX"
-        ls  ~/work/
-        echo "XXXXXX"
-        ls /Library/Android/sdk/
-        ls /Users/*/Library/Android/sdk/
+        ls /usr/local/lib/android/tools/
     
     # get the dependencies listed in the pubspec.yaml
     - name: Install dependencies
