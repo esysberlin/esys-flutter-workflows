@@ -116,8 +116,8 @@ jobs:
         flutter build apk --release
 
         # ls
-        ls ~/
-        ls ~/Android/
+        ls /root/
+        ls /root/Android/
 
         # align and sign .apk
         mkdir -p "${GITHUB_WORKSPACE}"/build/app/outputs/apk/release/aligned/
