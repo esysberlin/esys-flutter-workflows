@@ -9,8 +9,8 @@ on:
     - 'v*.*.*'
 
 jobs:
-  build:
-    runs-on: macos-latest
+  build_android:
+    runs-on: ubuntu-latest
     steps:
 
     # save the current tag as environment variable
@@ -102,6 +102,78 @@ jobs:
         mkdir -p "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/signed
         ~/Library/Android/sdk/build-tools/32.*/apksigner sign --out "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/signed/signed.aab --ks "${RUNNER_TEMP}"/keystore/keystore.jks --ks-key-alias "${ANDROID_SIGNING_ALIAS}" --ks-pass "pass:${ANDROID_SIGNING_KEYSTORE_PW}" --min-sdk-version 26 "${GITHUB_WORKSPACE}"/build/app/outputs/bundle/release/*.aab
 
+    
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        path: |
+          build/app/outputs/apk/release/signed/*.apk,
+          build/app/outputs/apk/release/signed/*.idsig,
+          build/app/outputs/bundle/release/signed/*.aab,
+          build/app/outputs/bundle/release/signed/*.idsig
+
+  build_ios:
+    runs-on: macos-latest
+    steps:
+
+    # save the current tag as environment variable
+    #
+    # https://stackoverflow.com/questions/58177786/get-the-current-pushed-tag-in-github-actions
+    - name: Set environment variables
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+    
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+          java-version: '15'
+          distribution: 'adopt'
+    
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v1
+      with:
+        flutter-version: '3.0.0'
+        channel: 'stable'
+        
+    # get the dependencies listed in the pubspec.yaml
+    - name: Install dependencies
+      run: flutter pub get
+    
+    # replace the whitespace in your program with formatting that follows Dart guidelines
+    # make the command have an exit code of 1 if any formatting changes occur
+    #
+    # https://dart.dev/tools/dart-format
+    - name: Check for any formatting issues
+      run: flutter format --set-exit-if-changed .
+    
+    # Exclude generated files in "analysis_optins.yaml" before analyzing.
+    #
+    # analyzer:
+    #   exclude:
+    #     - doc/**
+    #     - lib/generated/**
+    #     - playground/**
+    #     - '**.freezed.dart'
+    #     - '**.g.dart'
+    - name: Statically analyze code
+      run: flutter analyze .
+
+    # generate missing files
+    - name: Create generated files
+      run: |
+        # generate language files for https://marketplace.visualstudio.com/items?itemName=localizely.flutter-intl
+        # https://github.com/localizely/flutter-intl-vscode/issues/85
+        flutter pub run intl_utils:generate
+
+        # run build_runner to generate ".g" and ".freezed" files
+        dart run build_runner build
+    
+    # run tests
+    - name: Run Tests
+      run: flutter test
+
     # Resources:
     # https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
     - name: Install the Apple certificate and provisioning profile
@@ -160,17 +232,35 @@ jobs:
         zip -r signed.ipa Payload
         echo "done"
 
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        path: |
+          build/ios/iphoneos/*.ipa
+
+
+  publish_releases:
+    needs: [build_android, build_ios]
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Download all workflow run artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ~/
+
     - name: Create GitHub release with artifacts
       uses: ncipollo/release-action@v1
       with:
         artifacts: "
-        build/app/outputs/apk/release/signed/*.apk,
-        build/app/outputs/apk/release/signed/*.idsig,
-        build/app/outputs/bundle/release/signed/*.aab,
-        build/app/outputs/bundle/release/signed/*.idsig,
-        build/ios/iphoneos/*.ipa
+        ~/*.apk,
+        ~/*.apk.idsig,
+        ~/*.aab,
+        ~/*.aab.idsig,
+        ~/*.ipa 
         "
         token: ${{ secrets.GITHUB_TOKEN }}
+
 
     # - name: Prepare files for ftp upload
     #   run: |
