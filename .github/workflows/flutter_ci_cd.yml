@@ -30,7 +30,7 @@ jobs:
     
     - name: flutter cfg
       run: |
-        cd /usr/local/lib/android/sdk
+        cd /usr/local/lib/android/sdk/build-tools
         ls
 
     # get the dependencies listed in the pubspec.yaml
