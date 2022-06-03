@@ -137,11 +137,26 @@ jobs:
     - name: Archive code coverage results
       uses: actions/upload-artifact@v3
       with:
-        path: |
-          build/app/outputs/apk/release/signed/*.apk,
-          build/app/outputs/apk/release/signed/*.idsig,
-          build/app/outputs/bundle/release/signed/*.aab,
-          build/app/outputs/bundle/release/signed/*.idsig
+        name: signed.apk
+        path: build/app/outputs/apk/release/signed/*.apk,
+         
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        name: signed.apk.idsig
+        path: build/app/outputs/apk/release/signed/*.apk.idsig
+
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        name: signed.aab
+        path: build/app/outputs/bundle/release/signed/*.aab
+
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        name: signed.aab.idsig
+        path: build/app/outputs/bundle/release/signed/*.aab.idsig
 
   build_ios:
     needs: [tests]
@@ -247,7 +262,6 @@ jobs:
         name: signed.ipa
         path: build/ios/iphoneos/*.ipa
 
-
   publish_releases:
     needs: [tests, build_android, build_ios]
     runs-on: ubuntu-latest
@@ -256,20 +270,19 @@ jobs:
     - name: Download all workflow run artifacts
       uses: actions/download-artifact@v3
       with:
-        path: ~/
+        path: ${RUNNER_TEMP}/artifacts
 
     - name: Create GitHub release with artifacts
       uses: ncipollo/release-action@v1
       with:
         artifacts: "
-        ~/*.apk,
-        ~/*.apk.idsig,
-        ~/*.aab,
-        ~/*.aab.idsig,
-        ~/*.ipa 
+        ${RUNNER_TEMP}/artifacts/*.apk,
+        ${RUNNER_TEMP}/artifacts/*.apk.idsig,
+        ${RUNNER_TEMP}/artifacts/*.aab,
+        ${RUNNER_TEMP}/artifacts/*.aab.idsig,
+        ${RUNNER_TEMP}/artifacts/*.ipa 
         "
         token: ${{ secrets.GITHUB_TOKEN }}
-
 
     # - name: Prepare files for ftp upload
     #   run: |
