@@ -262,10 +262,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Download all workflow run artifacts
+    - name: Download .aab
       uses: actions/download-artifact@v3
       with:
+        name: signed.aab
         path: artifacts
+
+    - name: Download .aab.idsig
+      uses: actions/download-artifact@v3
+      with:
+        name: signed.aab.idsig
+        path: artifacts
+
+    - name: Download .apk
+      uses: actions/download-artifact@v3
+      with:
+        name: signed.apk
+        path: artifacts
+
+    - name: Download .apk.idsig
+      uses: actions/download-artifact@v3
+      with:
+        name: signed.apk.idsig
+        path: artifacts
+
+    - name: Download .ipa
+      uses: actions/download-artifact@v3
+      with:
+        name: signed.ipa
+        path: artifacts     
 
     - name: Create GitHub release with artifacts
       uses: ncipollo/release-action@v1
